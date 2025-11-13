@@ -11,7 +11,17 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 //configuração dos plugins
-app.use(cors());
+const whitelist = ['https://priscillabarbosa-developer.vercel.app']; 
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Não permitido pelo CORS'));
+    }
+  }
+};
+app.use(cors(corsOptions)); 
 app.use(express.json());
 
 //config das rotas
@@ -21,3 +31,7 @@ app.use('/api', contactRoutes);
 app.listen(PORT, () => {
     console.log(`Servidor bacnkend rodando na porta ${PORT}`);
 });
+
+
+
+
