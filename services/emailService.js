@@ -1,27 +1,32 @@
 
 
+// Importa o cliente oficial da Brevo
 const SibApiV3Sdk = require('@sendinblue/client');
 
-const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+// Cria uma instância da API
+const apiInstance = new SibApiV3Sdk.default.TransactionalEmailsApi(); 
 
-// Configura a autenticação
-const apiClient = SibApiV3Sdk.ApiClient.instance;
+// Configura a autenticação. 
+const apiClient = SibApiV3Sdk.default.ApiClient.instance; 
 const apiKey = apiClient.authentications['api-key'];
-apiKey.apiKey = process.env.BREVO_API_KEY; // Pega a chave do Render
+apiKey.apiKey = process.env.BREVO_API_KEY; 
 
-// função de envio
+//função de envio
 const sendContactEmail = async (name, email, company, companyType, message) => {
     
+    // 1. Define o remetente
     const sender = {
         email: 'priscillabarbosa2014@gmail.com', 
         name: name 
     };
 
+    // 2. Define o destinatário
     const to = [{
         email: process.env.EMAIL_RECEIVER 
     }];
 
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+    // 3. Monta o e-mail transacional
+    const sendSmtpEmail = new SibApiV3Sdk.default.SendSmtpEmail(); 
 
     sendSmtpEmail.sender = sender;
     sendSmtpEmail.to = to;
@@ -38,6 +43,7 @@ const sendContactEmail = async (name, email, company, companyType, message) => {
         <p>${message.replace(/\n/g, "<br>")}</p>
     `;
 
+    // 4. Envia o e-mail
     try {
         const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
         console.log('API da Brevo enviou com sucesso.', data);
