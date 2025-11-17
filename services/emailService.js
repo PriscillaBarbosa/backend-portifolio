@@ -1,37 +1,35 @@
+const brevo = require('@getbrevo/brevo');
 
-
-// Importa o cliente oficial da Brevo
-const SibApiV3Sdk = require('@sendinblue/client');
-
-// Cria uma instância da API
-const apiInstance = new SibApiV3Sdk.default.TransactionalEmailsApi(); 
-
-// Configura a autenticação. 
-const apiClient = SibApiV3Sdk.default.ApiClient.instance; 
-const apiKey = apiClient.authentications['api-key'];
-apiKey.apiKey = process.env.BREVO_API_KEY; 
-
-//função de envio
 const sendContactEmail = async (name, email, company, companyType, message) => {
     
-    // 1. Define o remetente
-    const sender = {
-        email: 'priscillabarbosa2014@gmail.com', 
+    // Cria instância da API
+    const apiInstance = new brevo.TransactionalEmailsApi();
+    
+    // Configura a chave API
+    apiInstance.setApiKey(
+        brevo.TransactionalEmailsApiApiKeys.apiKey,
+        process.env.BREVO_API_KEY
+    );
+
+    // Prepara o email
+    const sendSmtpEmail = new brevo.SendSmtpEmail();
+    
+    sendSmtpEmail.sender = {
+        email: 'priscillabarbosa2014@gmail.com',
+        name: name
+    };
+    
+    sendSmtpEmail.to = [{
+        email: process.env.EMAIL_RECEIVER || 'priscillabarbosa2014@gmail.com'
+    }];
+    
+    sendSmtpEmail.replyTo = { 
+        email: email, 
         name: name 
     };
-
-    // 2. Define o destinatário
-    const to = [{
-        email: process.env.EMAIL_RECEIVER 
-    }];
-
-    // 3. Monta o e-mail transacional
-    const sendSmtpEmail = new SibApiV3Sdk.default.SendSmtpEmail(); 
-
-    sendSmtpEmail.sender = sender;
-    sendSmtpEmail.to = to;
-    sendSmtpEmail.replyTo = { email: email, name: name }; 
+    
     sendSmtpEmail.subject = `Novo Contato de ${name} (Empresa: ${company || 'N/A'})`;
+    
     sendSmtpEmail.htmlContent = `
         <h2>Nova mensagem de contato do site:</h2>
         <p><strong>Nome:</strong> ${name}</p>
@@ -43,14 +41,13 @@ const sendContactEmail = async (name, email, company, companyType, message) => {
         <p>${message.replace(/\n/g, "<br>")}</p>
     `;
 
-    // 4. Envia o e-mail
     try {
         const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
-        console.log('API da Brevo enviou com sucesso.', data);
-        return data; 
+        console.log('✅ Email enviado com sucesso via Brevo');
+        return data;
     } catch (error) {
-        console.error('Erro ao enviar e-mail pela API da Brevo:', error);
-        throw error; 
+        console.error('❌ Erro ao enviar email:', error.response ? error.response.body : error);
+        throw error;
     }
 };
 
