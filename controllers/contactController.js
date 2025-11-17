@@ -1,4 +1,4 @@
-const { sendContactEmail } = require('../services/emailService');
+import { sendContactEmail } from '../services/emailService';
 
 const handleContactForm = async (req, res) => {
     const { name, email, company, companyType, message } = req.body;
@@ -20,7 +20,7 @@ const handleContactForm = async (req, res) => {
     }
 };
 
-module.exports = {
+export default {
     handleContactForm
 }
 
